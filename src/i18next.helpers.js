@@ -396,7 +396,7 @@ var cookie_noop = {
 // Deal with strange response codes
 // Comes from JQuery ajax source
 // Suggested by @iwege
-_xhrSuccessStatus = {
+var _xhrSuccessStatus = {
     // file protocol always yields status code 0, assume 200
     0: 200,
     // Support: IE9
