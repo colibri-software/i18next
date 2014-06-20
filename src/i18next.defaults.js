@@ -16,7 +16,7 @@ var o = {
     keyseparator: '.',
     selectorAttr: 'data-i18n',
     debug: false,
-    
+
     resGetPath: 'locales/__lng__/__ns__.json',
     resPostPath: 'locales/add/__lng__/__ns__',
 
@@ -31,6 +31,7 @@ var o = {
     sendMissing: false,
     sendMissingTo: 'fallback', // current | all
     sendType: 'POST',
+    ajaxFromFile: false,
 
     interpolationPrefix: '__',
     interpolationSuffix: '__',

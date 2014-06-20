@@ -347,6 +347,9 @@ function _ajax(options) {
     var methode = options.type ? options.type.toLowerCase() : 'get';
 
     http[methode](options.url, options, function (status, data) {
+        if(options.ajaxFromFile) {
+            status = _xhrSuccessStatus[xhr.status] || xhr.status
+        }
         if (status === 200) {
             options.success(data.json(), status, null);
         } else {
@@ -390,7 +393,16 @@ var cookie_noop = {
     remove: function(name) {}
 };
 
-
+// Deal with strange response codes
+// Comes from JQuery ajax source
+// Suggested by @iwege
+_xhrSuccessStatus = {
+    // file protocol always yields status code 0, assume 200
+    0: 200,
+    // Support: IE9
+    // #1450: sometimes IE returns 1223 when it should be 204
+    1223: 204
+};
 
 // move dependent functions to a container so that
 // they can be overriden easier in no jquery environment (node.js)
@@ -427,5 +439,6 @@ var f = {
     },
     regexEscape: function(str) {
         return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-    }
+    },
+    xhrSuccessStatus = _xhrSuccessStatus
 };

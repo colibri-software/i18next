@@ -64,7 +64,7 @@ var sync = {
     _fetch: function(lngs, options, cb) {
         var ns = options.ns
           , store = {};
-        
+
         if (!options.dynamicLoad) {
             var todo = ns.namespaces.length * lngs.length
               , errors;
@@ -72,7 +72,7 @@ var sync = {
             // load each file individual
             f.each(ns.namespaces, function(nsIndex, nsValue) {
                 f.each(lngs, function(lngIndex, lngValue) {
-                    
+
                     // Call this once our translation has returned.
                     var loadComplete = function(err, data) {
                         if (err) {
@@ -85,7 +85,7 @@ var sync = {
                         todo--; // wait for all done befor callback
                         if (todo === 0) cb(errors, store);
                     };
-                    
+
                     if(typeof options.customLoad == 'function'){
                         // Use the specified custom callback.
                         options.customLoad(lngValue, nsValue, options, loadComplete);
@@ -120,7 +120,7 @@ var sync = {
                     dataType: "json",
                     async : options.getAsync
                 });
-            }    
+            }
         }
     },
 
@@ -133,6 +133,9 @@ var sync = {
                 done(null, data);
             },
             error : function(xhr, status, error) {
+                if(options.ajaxFromFile) {
+                    status = f.xhrSuccessStatus[xhr.status] || xhr.status
+                }
                 if ((status && status == 200) || (xhr && xhr.status && xhr.status == 200)) {
                     // file loaded but invalid json, stop waste time !
                     f.log('There is a typo in: ' + url);
@@ -142,7 +145,7 @@ var sync = {
                     var theStatus = status ? status : ((xhr && xhr.status) ? xhr.status : null);
                     f.log(theStatus + ' when loading ' + url);
                 }
-                
+
                 done(error, {});
             },
             dataType: "json",
