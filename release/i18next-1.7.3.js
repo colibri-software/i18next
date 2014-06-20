@@ -116,7 +116,7 @@
         keyseparator: '.',
         selectorAttr: 'data-i18n',
         debug: false,
-        
+    
         resGetPath: 'locales/__lng__/__ns__.json',
         resPostPath: 'locales/add/__lng__/__ns__',
     
@@ -131,6 +131,7 @@
         sendMissing: false,
         sendMissingTo: 'fallback', // current | all
         sendType: 'POST',
+        ajaxFromFile: false,
     
         interpolationPrefix: '__',
         interpolationSuffix: '__',
@@ -504,6 +505,9 @@
         var methode = options.type ? options.type.toLowerCase() : 'get';
     
         http[methode](options.url, options, function (status, data) {
+            if(options.ajaxFromFile) {
+                status = _xhrSuccessStatus[xhr.status] || xhr.status
+            }
             if (status === 200) {
                 options.success(data.json(), status, null);
             } else {
@@ -547,7 +551,16 @@
         remove: function(name) {}
     };
     
-    
+    // Deal with strange response codes
+    // Comes from JQuery ajax source
+    // Suggested by @iwege
+    var _xhrSuccessStatus = {
+        // file protocol always yields status code 0, assume 200
+        0: 200,
+        // Support: IE9
+        // #1450: sometimes IE returns 1223 when it should be 204
+        1223: 204
+    };
     
     // move dependent functions to a container so that
     // they can be overriden easier in no jquery environment (node.js)
@@ -584,7 +597,8 @@
         },
         regexEscape: function(str) {
             return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-        }
+        },
+        xhrSuccessStatus: _xhrSuccessStatus
     };
     function init(options, cb) {
         
@@ -1336,7 +1350,7 @@
         _fetch: function(lngs, options, cb) {
             var ns = options.ns
               , store = {};
-            
+    
             if (!options.dynamicLoad) {
                 var todo = ns.namespaces.length * lngs.length
                   , errors;
@@ -1344,7 +1358,7 @@
                 // load each file individual
                 f.each(ns.namespaces, function(nsIndex, nsValue) {
                     f.each(lngs, function(lngIndex, lngValue) {
-                        
+    
                         // Call this once our translation has returned.
                         var loadComplete = function(err, data) {
                             if (err) {
@@ -1357,7 +1371,7 @@
                             todo--; // wait for all done befor callback
                             if (todo === 0) cb(errors, store);
                         };
-                        
+    
                         if(typeof options.customLoad == 'function'){
                             // Use the specified custom callback.
                             options.customLoad(lngValue, nsValue, options, loadComplete);
@@ -1392,7 +1406,7 @@
                         dataType: "json",
                         async : options.getAsync
                     });
-                }    
+                }
             }
         },
     
@@ -1405,6 +1419,9 @@
                     done(null, data);
                 },
                 error : function(xhr, status, error) {
+                    if(options.ajaxFromFile) {
+                        status = f.xhrSuccessStatus[xhr.status] || xhr.status
+                    }
                     if ((status && status == 200) || (xhr && xhr.status && xhr.status == 200)) {
                         // file loaded but invalid json, stop waste time !
                         f.log('There is a typo in: ' + url);
@@ -1414,7 +1431,7 @@
                         var theStatus = status ? status : ((xhr && xhr.status) ? xhr.status : null);
                         f.log(theStatus + ' when loading ' + url);
                     }
-                    
+    
                     done(error, {});
                 },
                 dataType: "json",
