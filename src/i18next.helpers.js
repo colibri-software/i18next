@@ -440,5 +440,5 @@ var f = {
     regexEscape: function(str) {
         return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
     },
-    xhrSuccessStatus = _xhrSuccessStatus
+    xhrSuccessStatus: _xhrSuccessStatus
 };
